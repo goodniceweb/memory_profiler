@@ -59,16 +59,17 @@ module MemoryProfiler
 
       @report_results = Results.new
       @report_results.register_results(allocated, retained, top)
+      @leak_hunter
     end
 
     # Collects object allocation and memory of ruby code inside of passed block.
     def run(&block)
       start
-      block.call
+      @leak_hunter = LeakHunter.new
+      block.call(@leak_hunter)
+      @leak_hunter.end_up
       stop
     end
-
-    private
 
     # Iterates through objects in memory of a given generation.
     # Stores results along with meta data of objects collected.
